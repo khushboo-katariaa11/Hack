@@ -434,11 +434,11 @@ elif st.session_state.page == "main":
         - Khushboo Kataria 
 
         For questions, collaboration, or mentorship:  
-        - Email [Namit Rana] : namit2006rana@gmail.com
-        - Email [Khushboo Kataria] : khushbookataria2004@gmail.com
+        - Email [Namit Rana](namit2006rana@gmail.com)
+        - Email [Khushboo Kataria](khushbookataria2004@gmail.com)
         
         - GitHub: [Namit Rana](https://github.com/Namit-Rana6)
-        - Github : [Khushboo Kataria] (https://github.com/khushboo-katariaa11)
+        - Github : [Khushboo Kataria](https://github.com/khushboo-katariaa11)
 
         
         - LinkedIn: [Namit Rana](https://www.linkedin.com/in/namit-rana/)
