@@ -344,10 +344,6 @@ elif st.session_state.page == "main":
         st.markdown(r"""
         Intersection over Union (IoU) is a fundamental metric used in object detection to evaluate the accuracy of predicted bounding boxes. It measures the overlap between the predicted bounding box and the ground truth bounding box by calculating the ratio of the area of their intersection to the area of their union:
     
-        \[
-        \text{IoU} = \frac{\text{Area of Overlap}}{\text{Area of Union}}
-        \]
-    
         An IoU of 1 means the predicted box perfectly matches the ground truth.
     
         An IoU of 0 means there is no overlap.
