@@ -430,13 +430,19 @@ elif st.session_state.page == "main":
         st.subheader("Team & Contact")
         st.markdown("""
         **OINK BOINK Team**  
-        - Namit Rana – Lead AI Engineer  
-        - Khushboo Kataria – Machine Learning Specialist  
+        - Namit Rana
+        - Khushboo Kataria 
 
         For questions, collaboration, or mentorship:  
-        - Email: your_team_email@example.com  
-        - GitHub: [YourGitHubProfile](https://github.com/YourGitHubProfile)  
-        - LinkedIn: [YourLinkedInProfile](https://linkedin.com/in/YourLinkedInProfile)
+        - Email [Namit Rana] : namit2006rana@gmail.com
+        - Email [Khushboo Kataria] : khushbookataria2004@gmail.com
+        
+        - GitHub: [Namit Rana](https://github.com/Namit-Rana6)
+        - Github : [Khushboo Kataria] (https://github.com/khushboo-katariaa11)
+
+        
+        - LinkedIn: [Namit Rana](https://www.linkedin.com/in/namit-rana/)
+        - LinkedIn: [Khushboo Kataria](https://www.linkedin.com/in/khushbookataria/)
         """)
 
         st.markdown("---")
