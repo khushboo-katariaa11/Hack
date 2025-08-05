@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
+
+body, .stApp {
+    background: #16171A !important;
+    color: #F2F4F8 !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+.elegant-card {
+    background: #22232B;
+    border-radius: 18px;
+    border: 1.5px solid #26272f;
+    padding: 2.2rem 2rem;
+    box-shadow: 0 2px 14px 0 #14131527;
+    margin-bottom: 2.4rem;
+}
+h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
+    color: #F2F4F8 !important;
+    font-family: 'Montserrat', sans-serif !important;
+    letter-spacing: .02em;
+    font-weight: 700;
+}
+.stButton > button {
+    background: linear-gradient(92deg, #23253A 10%, #2B2D3B 90%);
+    color: #F2F4F8 !important;
+    border-radius: 12px;
+    font-size: 1.13em;
+    padding: 0.78em 2em;
+    font-weight: 600;
+    letter-spacing:.02em;
+    box-shadow: 0 3px 10px #10101027;
+    transition: background 0.18s;
+}
+.stButton > button:hover {
+    background: #23253A !important;
+}
+input, .stTextInput input, .stFileUploader {
+    background: #191921 !important;
+    color: #F2F4F8 !important;
+    border-radius: 9px;
+}
+.stSlider > div > div > div {
+    background: #26272f !important;
+}
+.stSlider span {
+    color: #F2F4F8 !important;
+}
+.stMetric {
+    background: #23253A;
+    border-radius: 1em;
+    padding: 0.6em;
+    margin: 0.25em;
+}
