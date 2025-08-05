@@ -189,64 +189,201 @@ elif st.session_state.page == "main":
         """)
 
     # --- Full Report Tab ---
-    def render_full_report():
-        st.header("Detailed Project Report")
+    def render_full_exact_report():
+    st.header("Dataset Preparation & Augmentation")
 
-        st.subheader("Project Summary")
-        st.markdown("""
-        This project focuses on developing a highly accurate object detection system 
-        using the YOLOv8 deep learning model to identify critical safety equipment—
-        Fire Extinguishers, Tool Boxes, Oxygen Tanks—in images. Utilizing a custom-curated dataset,
-        the model was fine-tuned with advanced augmentations and hyperparameter tuning to achieve robust performance.
-        """)
+    st.markdown("""
+    The curated dataset was well labeled originally, with each image paired to a high-quality bounding box annotation file, minimizing manual intervention during setup.
+    """)
 
-        st.subheader("Methodology")
-        st.markdown("""
-        - Dataset preparation and mounting in Colab environment.
-        - Custom YAML dataset configuration specifying classes and paths.
-        - YOLOv8x model initialized with pretrained checkpoint.
-        - Fine-tuned for 100 epochs using data augmentations like mosaic, mixup, HSV shifts.
-        - Early stopping to prevent overfitting.
-        """)
+    st.subheader("Image Augmentation Pipeline:")
+    st.markdown("""
+    To maximize model robustness and simulate real-world variability, a range of safe, label-preserving augmentations were applied using the Albumentations library. Each putative augmentation was selected both for its visual realism and its safety (i.e., it does NOT distort object geometry, so bounding boxes remain correct):
 
-        st.subheader("Test Results & Evaluation Metrics")
-        st.markdown("""
-        - Fitness: 0.9549
-        - Precision: 0.9892
-        - Recall: 0.9567
-        - mAP50: 0.9770
-        - mAP50-95: 0.9524
+    **RandomBrightnessContrast**  
+    Adjusts the brightness and contrast of the image.  
+    *Why:* Simulates varying lighting conditions found in industrial settings, ensuring the detector remains accurate whether environments are dark or brightly lit.
 
-        The model demonstrates outstanding accuracy and operational efficiency.
-        """)
+    **HueSaturationValue**  
+    Alters the hue, saturation, and value (color intensity) of images.  
+    *Why:* Emulates changes from different camera types or ambient lighting, preventing overfit to any fixed color tone.
 
-        st.subheader("Challenges")
-        st.markdown("""
-        - Overfitting detected after certain epochs.
-        - Addressed by tuning augmentations (reduced mosaic, controlled mixup, HSV adjustments)
-        - Used early stopping with patience to save the best model.
-        """)
+    **GaussNoise**  
+    Adds random Gaussian noise across the image.  
+    *Why:* Prepares the model for lower-quality or noisy cameras, typical in industrial and warehouse monitoring.
 
-        st.subheader("Conclusion")
-        st.markdown("""
-        The tuned YOLOv8x model significantly outperforms the baseline,
-        yielding near-perfect precision and recall, stable training, and robust detection in varied conditions.
-        """)
+    **ImageCompression**  
+    Simulates JPEG compression artifacts.  
+    *Why:* Builds resilience to images stored/transmitted at lower quality, which is common in real-time monitoring systems.
 
-        st.subheader("Future Work")
-        st.markdown("""
-        - Expand augmentation pipeline (zoom, flipping, blurring, cropping).
-        - Improve robustness under extreme conditions.
-        - Broaden detected classes to include PPE and other assets.
-        """)
+    **CLAHE (Contrast Limited Adaptive Histogram Equalization)**  
+    Enhances local contrast in images.  
+    *Why:* Improves detection of objects against backgrounds with poor or uneven contrast.
 
-        st.subheader("Use Case Application")
-        st.markdown("""
-        An automated industrial safety and inventory monitoring system using this detection model can:
-        - Provide real-time alerts for missing/misplaced safety equipment.
-        - Optimize operational efficiency by tracking critical tools.
-        - Scale across multiple facilities and integrate with existing management software.
-        """)
+    **RGBShift**  
+    Randomly shifts the R, G, and B color channels.  
+    *Why:* Helps the model generalize to images with varying white balance (color tint).
+
+    **Blur**  
+    Applies mild blur to the entire image.  
+    *Why:* Ensures the model still detects objects in images that are slightly out of focus.
+
+    **Sharpen**  
+    Increases edge and detail sharpness.  
+    *Why:* Encourages the model to rely on shape cues as well as color.
+
+    **MotionBlur**  
+    Applies blur in a particular direction.  
+    *Why:* Simulates the effect of cameras or objects moving during image capture.
+
+    For each source image, two augmented variants were created, effectively tripling dataset size (original + 2 augmentations per example). Each augmentation was applied with a certain probability, ensuring diverse but realistic alterations.
+
+    **Label Integrity:**  
+    The augmentation pipeline only transforms the pixel data; bounding box annotation files are copied directly, so all object location data remains accurate for YOLO training.
+
+    **Outcome:**  
+    By systematically applying and explaining these augmentations, the resulting training set covers a wide spectrum of real-world imaging scenarios—making your detection model more accurate, versatile, and resilient in practical deployment.
+    """)
+
+    st.header("Methodology")
+
+    st.subheader("Model Training")
+
+    st.markdown("""
+    1. **Model Selection and Initialization**
+
+    Chose the high-capacity YOLOv8l (large variant) architecture for its excellent balance of detection precision and speed on modern GPUs.
+
+    Leveraged transfer learning by initializing with pretrained weights (yolov8l.pt), allowing for faster convergence and better performance even with moderate dataset sizes.
+
+    2. **Training Strategy**
+
+    Custom Dataset Configuration: Used a YAML file specifying dataset paths and class names to ensure the model is fine-tuned specifically to the project’s detection targets.
+
+    Epochs: Trained for 50 epochs—optimized to mitigate overfitting observed in earlier, longer runs.
+
+    Image Resolution: Set imgsz=640 for high input resolution, capturing small or detailed features of safety equipment objects.
+
+    Batch Size: Conservatively set to 4 to suit the available T4 GPU memory while maintaining stable training.
+
+    Optimizer: Switched to AdamW for robust, generalized updates on complex object detection problems.
+
+    Learning Rate and Regularization: Used a low learning rate (1e-4) and weight decay (0.001) for stable learning and to avoid overfitting.
+
+    Early Stopping: Implemented with increased patience (20)—training stops automatically when validation loss stagnates, ensuring the model is never overtrained.
+
+    Dropout & Label Smoothing:
+
+    Dropout (0.10) introduces randomness for better generalization, especially useful on small datasets.
+
+    Label smoothing (0.05) reduces overconfidence on potentially noisy or ambiguous labels.
+
+    3. **Augmentation and Generalization Controls**
+
+    Extensive, controlled augmentations during training to increase robustness:
+
+    Mosaic (0.4): Combines multiple images, helping learn context and scale variety.
+
+    Mixup (0.15): Light blending of image/label pairs for regularization.
+
+    HSV Adjustments: Subtle changes to hue (0.015), saturation (0.6), and brightness (0.4), making the model invariant to color and lighting shifts.
+
+    Translate (0.1) & Scale (0.5): Mild spatial transforms for small location and size inconsistencies.
+
+    All augmentations are probabilistic and carefully tuned to provide diversity without creating unrealistic instances.
+
+    4. **Training Infrastructure**
+
+    Training performed on GPU (cuda:0) for speed and efficiency.
+
+    Project structure (project="hackbyte-final", name="yolov8l-augmented") and validation enabled for rigorous experiment management.
+
+    All preprocessed (original + augmented) images were merged into the training set, maximizing model exposure to visual diversity.
+    """)
+
+    st.header("Test Results & Evaluation Metrics")
+
+    st.markdown("""
+    After training, the YOLOv8l model was evaluated on a designated test set of 154 high-quality, labeled images containing 206 object instances. The test dataset was free from corrupt files or background-only samples, ensuring the reliability of the evaluation.
+
+    **Performance Metrics:**
+
+    Overall (All Classes):
+
+    Precision: 0.975  
+    The model correctly identified 97.5% of predicted bounding boxes as true positives.
+
+    Recall: 0.934  
+    It successfully detected 93.4% of all actual objects present in the images.
+
+    mAP50: 0.965  
+    Mean Average Precision at an Intersection over Union (IoU) threshold of 0.5, indicating high confidence in object localization and classification.
+
+    mAP50-95: 0.924  
+    Mean Average Precision averaged over IoU thresholds from 0.5 to 0.95, reflecting robust detection accuracy under stricter conditions.
+
+    **Per-Class Breakdown:**
+
+    | Class             | Precision | Recall | mAP50 | mAP50-95 |
+    |-------------------|-----------|--------|-------|----------|
+    | Fire Extinguisher | 1.000     | 0.954  | 0.982 | 0.932    |
+    | Tool Box          | 0.963     | 0.917  | 0.952 | 0.928    |
+    | Oxygen Tank       | 0.961     | 0.932  | 0.960 | 0.911    |
+
+    **Inference Efficiency (Tesla T4 GPU):**
+
+    Preprocessing: 0.4 ms/image
+
+    Inference: 20.0 ms/image
+
+    Postprocessing: 3.7 ms/image
+    """)
+
+    st.subheader("What is Intersection over Union (IoU)?")
+
+    st.markdown(r"""
+    Intersection over Union (IoU) is a fundamental metric used in object detection to evaluate the accuracy of predicted bounding boxes. It measures the overlap between the predicted bounding box and the ground truth bounding box by calculating the ratio of the area of their intersection to the area of their union:
+
+    \[
+    \text{IoU} = \frac{\text{Area of Overlap}}{\text{Area of Union}}
+    \]
+
+    An IoU of 1 means the predicted box perfectly matches the ground truth.
+
+    An IoU of 0 means there is no overlap.
+
+    A prediction is considered correct if its IoU exceeds a threshold (commonly 0.5), which is why metrics like mAP50 use this threshold to determine true positive detections.
+    """)
+
+    st.header("Conclusion")
+
+    st.markdown("""
+    These results demonstrate the YOLOv8l model’s excellent precision, recall, and localization accuracy across critical safety equipment classes. The high mAP scores confirm robust detection capabilities, while efficient inference rates make the model suitable for real-time industrial safety monitoring applications. This positions the system as a reliable solution for automated safety asset tracking and alerting in diverse operational environments.
+    """)
+
+    st.header("Challenges")
+
+    st.markdown("""
+    Initially, extensive image-only augmentations were applied during dataset preparation to increase data diversity and improve model robustness. These included brightness, contrast, noise, blur, and color adjustments that preserved label accuracy.
+
+    During training, to specifically address overfitting detected after several epochs, we introduced a second layer of carefully tuned augmentations. These included reducing mosaic augmentation intensity to 0.4, applying mild mixup at 0.15, and subtle adjustments to hue, saturation, brightness, translation, and scale. This training-stage augmentation helped the model generalize better to new data by exposing it to realistic variations in object appearance and positioning.
+
+    Additionally, early stopping with a patience parameter was used to monitor validation performance and halt training when improvements plateaued. This combined approach of pre-training augmentations and targeted training augmentations, alongside early stopping, was key to developing a stable, high-performing, and generalizable model.
+    """)
+
+    st.header("Final Summary")
+
+    st.markdown("""
+    This project successfully developed a highly accurate YOLOv8l-based object detection system tailored for critical safety equipment identification in industrial settings. The model achieved an outstanding mean Average Precision (mAP50) of 96.5%, which is a decisive indicator of its superior accuracy in detecting and localizing objects with minimal false positives and false negatives.
+
+    This level of precision and robustness is a standout achievement, demonstrating the model’s readiness for deployment in real-world environments where reliable detection of safety assets like fire extinguishers, tool boxes, and oxygen tanks is crucial for operational safety and compliance.
+
+    By combining extensive dataset augmentations, carefully tuned training augmentations, and early stopping to counter overfitting, the system not only backed high accuracy but also ensured strong generalization to new, unseen data. The rapid inference speed on standard GPU hardware further underscores its suitability for real-time industrial safety monitoring applications.
+
+    Overall, the model’s near-perfect precision and the exceptionally high mAP50 performance make it a winning solution with significant potential impact on automating industrial safety audits, reducing risks, and enhancing workplace safety effectively.
+    """)
+
+# To use, call render_full_exact_report() in your Streamlit app where you want to display this full detailed report.
 
     with tabs[2]:
         render_full_report()
