@@ -386,7 +386,7 @@ elif st.session_state.page == "main":
 # To use, call render_full_exact_report() in your Streamlit app where you want to display this full detailed report.
 
     with tabs[2]:
-        render_full_report()
+        render_full_exact_report()
 
     # --- Docs & Team Tab ---
     with tabs[3]:
