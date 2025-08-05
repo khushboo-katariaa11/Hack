@@ -258,37 +258,37 @@ elif st.session_state.page == "main":
     
         2. **Training Strategy**
     
-        Custom Dataset Configuration: Used a YAML file specifying dataset paths and class names to ensure the model is fine-tuned specifically to the project’s detection targets.
+        - Custom Dataset Configuration: Used a YAML file specifying dataset paths and class names to ensure the model is fine-tuned specifically to the project’s detection targets.
     
-        Epochs: Trained for 50 epochs—optimized to mitigate overfitting observed in earlier, longer runs.
+        - Epochs: Trained for 50 epochs—optimized to mitigate overfitting observed in earlier, longer runs.
         
-        Image Resolution: Set imgsz=640 for high input resolution, capturing small or detailed features of safety equipment objects.
+        - Image Resolution: Set imgsz=640 for high input resolution, capturing small or detailed features of safety equipment objects.
         
-        Batch Size: Conservatively set to 4 to suit the available T4 GPU memory while maintaining stable training.
+        - Batch Size: Conservatively set to 4 to suit the available T4 GPU memory while maintaining stable training.
         
-        Optimizer: Switched to AdamW for robust, generalized updates on complex object detection problems.
+        - Optimizer: Switched to AdamW for robust, generalized updates on complex object detection problems.
         
-        Learning Rate and Regularization: Used a low learning rate (1e-4) and weight decay (0.001) for stable learning and to avoid overfitting.
+        - Learning Rate and Regularization: Used a low learning rate (1e-4) and weight decay (0.001) for stable learning and to avoid overfitting.
         
-        Early Stopping: Implemented with increased patience (20)—training stops automatically when validation loss stagnates, ensuring the model is never overtrained.
+        - Early Stopping: Implemented with increased patience (20)—training stops automatically when validation loss stagnates, ensuring the model is never overtrained.
         
-        Dropout & Label Smoothing:
+        - Dropout & Label Smoothing:
     
-        Dropout (0.10) introduces randomness for better generalization, especially useful on small datasets.
+        - Dropout (0.10) introduces randomness for better generalization, especially useful on small datasets.
         
-        Label smoothing (0.05) reduces overconfidence on potentially noisy or ambiguous labels.
+        - Label smoothing (0.05) reduces overconfidence on potentially noisy or ambiguous labels.
     
         3. **Augmentation and Generalization Controls**
     
-        Extensive, controlled augmentations during training to increase robustness:
+        - Extensive, controlled augmentations during training to increase robustness:
         
-        Mosaic (0.4): Combines multiple images, helping learn context and scale variety.
+        - Mosaic (0.4): Combines multiple images, helping learn context and scale variety.
         
-        Mixup (0.15): Light blending of image/label pairs for regularization.
+        - Mixup (0.15): Light blending of image/label pairs for regularization.
         
-        HSV Adjustments: Subtle changes to hue (0.015), saturation (0.6), and brightness (0.4), making the model invariant to color and lighting shifts.
+        - HSV Adjustments: Subtle changes to hue (0.015), saturation (0.6), and brightness (0.4), making the model invariant to color and lighting shifts.
         
-        Translate (0.1) & Scale (0.5): Mild spatial transforms for small location and size inconsistencies.
+        - Translate (0.1) & Scale (0.5): Mild spatial transforms for small location and size inconsistencies.
     
         All augmentations are probabilistic and carefully tuned to provide diversity without creating unrealistic instances.
     
