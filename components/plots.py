@@ -3,7 +3,7 @@ import plotly.graph_objs as go
 
 def model_performance_comparison_chart(key=None):
     metrics = ["Precision", "Recall", "mAP50", "mAP50-95"]
-    baseline = [0.881, 0.739, 0.819, 0.684]
+    baseline = [0.781, 0.739, 0.719, 0.684]
     tuned = [0.925, 0.852, 0.914, 0.867]  # updated from val24
     fig = go.Figure(data=[
         go.Bar(name="Baseline Model", x=metrics, y=baseline, marker_color="#8EA7E9"),
